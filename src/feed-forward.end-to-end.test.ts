@@ -16,15 +16,8 @@ import {
 import { momentumRootMeanSquaredPropagation } from './praxis';
 import { zeros2D } from './utilities/zeros-2d';
 import { setup, teardown } from './utilities/kernel';
-import { mockPraxis } from './test-utils';
+import { mockPraxis, xorTrainingData } from './test-utils';
 import { IPraxis } from './praxis/base-praxis';
-
-const xorTrainingData = [
-  { input: [0, 0], output: [0] },
-  { input: [0, 1], output: [1] },
-  { input: [1, 0], output: [1] },
-  { input: [1, 1], output: [0] },
-];
 
 /* eslint-disable no-multi-assign */
 
@@ -374,9 +367,13 @@ describe('FeedForward Class: End to End', () => {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result1 = net.run([0, 0]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result2 = net.run([0, 1]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result3 = net.run([1, 0]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result4 = net.run([1, 1]);
 
       // TODO: this should be easier than result[0][0] https://github.com/BrainJS/brain.js/issues/439
@@ -410,6 +407,28 @@ describe('FeedForward Class: End to End', () => {
       test('can learn xor', () => {
         testCanLearnXOR();
       });
+    });
+  });
+
+  describe('.trainAsync()', () => {
+    it('can be used to train XOR', async () => {
+      const net = new FeedForward({
+        inputLayer: () => input({ height: 2 }),
+        hiddenLayers: [
+          (inputLayer) => feedForwardLayer({ height: 3 }, inputLayer),
+          (inputLayer) => feedForwardLayer({ height: 1 }, inputLayer),
+        ],
+        outputLayer: (inputLayer) => target({ height: 1 }, inputLayer),
+      });
+      const errors: number[] = [];
+      const result = await net.trainAsync(xorTrainingData, {
+        iterations: 10,
+        callbackPeriod: 1,
+        errorCheckInterval: 1,
+        callback: (info) => errors.push(info.error),
+      });
+      expect(result.error).toBeLessThan(1);
+      expect(result.iterations).toBe(10);
     });
   });
 

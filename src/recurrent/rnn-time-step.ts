@@ -19,7 +19,6 @@ import {
 } from '../utilities/cast';
 import { LookupTable } from '../utilities/lookup-table';
 import { randomFloat } from '../utilities/random';
-import { zeros } from '../utilities/zeros';
 import { IMatrixJSON, Matrix } from './matrix';
 import { Equation } from './matrix/equation';
 import { maxI } from './matrix/max-i';
@@ -810,6 +809,8 @@ export class RNNTimeStep extends RNN {
     return result;
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   formatData(data: FormattableData[]): Float32Array[][] {
     const dataShape = lookup.dataShape(data).join(',');
     switch (dataShape) {
@@ -1308,9 +1309,8 @@ ${innerFunctionsSwitch.join('\n')}
   function Matrix(rows, columns) {
     this.rows = rows;
     this.columns = columns;
-    this.weights = zeros(rows * columns);
+    this.weights = new Float32Array(rows * columns);
   }
-  ${zeros.toString()}
   ${softmax.toString().replace('_2.default', 'Matrix')}
   ${randomFloat.toString()}
   ${sampleI.toString()}

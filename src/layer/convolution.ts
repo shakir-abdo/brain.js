@@ -1,4 +1,4 @@
-import { makeKernel, release, clone, clear } from '../utilities/kernel';
+import { makeKernel, release, clone } from '../utilities/kernel';
 import { getStride, getPadding } from '../utilities/layer-setup';
 import { Filter } from './filter';
 import { randos, randos3D } from '../utilities/randos';
@@ -25,6 +25,7 @@ export interface IConvolutionConstantsBase extends IConstantsThis {
 export interface IPredictConstants extends IConvolutionConstantsBase {
   inputWidth: number;
   inputHeight: number;
+  inputDepth: number;
 }
 
 export function predict(
@@ -212,7 +213,7 @@ export function compareInputDeltas(
 
 export interface ICompareBiasesConstants extends IConstantsThis {
   deltaHeight: number;
-  deltaWdith: number;
+  deltaWidth: number;
 }
 
 export function compareBiases(
@@ -387,9 +388,9 @@ export class Convolution extends Filter {
 
     this.compareFilterDeltasKernel = makeKernel(compareFilterDeltas, {
       constants: {
-        deltasWidth: this.width,
-        deltasHeight: this.height,
-        deltasDepth: this.depth,
+        deltaWidth: this.width,
+        deltaHeight: this.height,
+        deltaZ: this.depth,
         inputWidth: this.inputLayer.width,
         inputHeight: this.inputLayer.height,
         inputDepth: this.inputLayer.depth,
@@ -406,6 +407,15 @@ export class Convolution extends Filter {
 
     this.compareInputDeltasKernel = makeKernel(compareInputDeltas, {
       constants: {
+        deltaWidth: this.width,
+        deltaHeight: this.height,
+        deltaZ: this.depth,
+        strideX: this.strideX,
+        strideY: this.strideY,
+        paddingX: this.paddingX,
+        paddingY: this.paddingY,
+        filterWidth: this.filterWidth,
+        filterHeight: this.filterHeight,
         filterCount: this.filterCount,
       },
       output: [

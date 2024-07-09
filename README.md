@@ -17,7 +17,7 @@ GPU accelerated Neural networks in JavaScript for Browsers and Node.js
   ![CI](https://github.com/BrainJS/brain.js/workflows/CI/badge.svg)
   [![codecov](https://codecov.io/gh/BrainJS/brain.js/branch/master/graph/badge.svg?token=3SJIBJ1679)](https://codecov.io/gh/BrainJS/brain.js)
   <a href="https://twitter.com/brainjsfnd"><img src="https://img.shields.io/twitter/follow/brainjsfnd?label=Twitter&style=social" alt="Twitter"></a>
-  
+
   [![NPM](https://nodei.co/npm/brain.js.png?compact=true)](https://nodei.co/npm/brain.js/)
 
 </p>
@@ -43,10 +43,11 @@ GPU accelerated Neural networks in JavaScript for Browsers and Node.js
     - [For training with NeuralNetwork](#for-training-with-neuralnetwork)
     - [For training with `RNNTimeStep`, `LSTMTimeStep` and `GRUTimeStep`](#for-training-with-rnntimestep-lstmtimestep-and-grutimestep)
     - [For training with `RNN`, `LSTM` and `GRU`](#for-training-with-rnn-lstm-and-gru)
+    - [For training with `AE`](#for-training-with-ae)
   - [Training Options](#training-options)
   - [Async Training](#async-training)
   - [Cross Validation](#cross-validation)
-  - [Train Stream](#train-stream)
+  - [Train Stream](#streams)
 - [Methods](#methods)
   - [train](#traintrainingdata---trainingstatus)
   - [run](#runinput---prediction)
@@ -58,9 +59,6 @@ GPU accelerated Neural networks in JavaScript for Browsers and Node.js
   - [activation](#activation)
   - [hiddenLayers](#hiddenlayers)
 - [Streams](#streams)
-  - [Example](#example)
-  - [Initialization](#initialization)
-  - [Transform](#transform)
 - [Utilities](#utilities)
   - [`likely`](#likely)
   - [`toSVG`](#toSVG)
@@ -89,7 +87,7 @@ npm install brain.js
 
 ### Installation note
 
-`Brain.js` depends on a native module `headless-gl` for gpu support. In most cases installing `brain.js` from npm should just work. However, if you run into problems, this mean prebuilt binaries are not able to download from github repositories and you might need to build it yourself.
+`Brain.js` depends on a native module [`headless-gl`](https://www.npmjs.com/package/headless-gl) for GPU support. In most cases installing `brain.js` from npm should just work. However, if you run into problems, this means prebuilt binaries are not able to download from GitHub repositories and you might need to build it yourself.
 
 #### Building from source
 
@@ -103,30 +101,30 @@ npm rebuild
 
 ###### Mac OS X
 
-- [Python 2.7](https://www.python.org/)
+- [A supported version of Python](https://devguide.python.org/versions)
 - [XCode](https://developer.apple.com/xcode/)
 
 ###### Ubuntu/Debian
 
-- [Python 2.7](https://www.python.org/)
+- [A supported version of Python](https://devguide.python.org/versions)
 - A GNU C++ environment (available via the `build-essential` package on `apt`)
 - [libxi-dev](http://www.x.org/wiki/)
-- Working and up to date OpenGL drivers
+- Working and up-to-date OpenGL drivers
 - [GLEW](http://glew.sourceforge.net/)
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
 
 ```bash
-sudo apt-get install -y build-essential libxi-dev libglu1-mesa-dev libglew-dev pkg-config
+sudo apt-get install -y build-essential libglew-dev libglu1-mesa-dev libxi-dev pkg-config
 ```
 
 ###### Windows
 
-- [Python 2.7](https://www.python.org/)
-- [Microsoft Visual Studio Build Tools 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48159)
-- run in cmd: `npm config set msvs_version 2015`
-- run in cmd: `npm config set python python2.7`
+- [A supported version of Python](https://devguide.python.org/versions)  __See:__ https://apps.microsoft.com/store/search/python
+- [Microsoft Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads)
+- run in cmd: `npm config set msvs_version 2022`  __Note: This no longer works in modern versions of npm.__
+- run in cmd: `npm config set python python3`  __Note: This no longer works in modern versions of npm.__
 
-\* If you are using `Build Tools 2017` then run `npm config set msvs_version 2017`
+\* If you are using `Build Tools 2017` then run `npm config set msvs_version 2017`  __Note: This no longer works in modern versions of npm.__
 
 ## Examples
 
@@ -144,7 +142,7 @@ const config = {
   leakyReluAlpha: 0.01, // supported for activation type 'leaky-relu'
 };
 
-// create a simple feed forward neural network with backpropagation
+// create a simple feed-forward neural network with backpropagation
 const net = new brain.NeuralNetwork(config);
 
 net.train([
@@ -192,17 +190,9 @@ However, there is no reason to use a neural network to figure out XOR. (-: So, h
 
 ## More Examples
 
-You can check out this fantastic screencast, which explains how to train a simple neural network using a real world dataset: [How to create a neural network in the browser using Brain.js](https://scrimba.com/c/c36zkcb).
+[Brain.js Examples Repo](https://github.com/BrainJS/brain.js-examples)
 
-- [writing a children's book using a recurrent neural network](./examples/javascript/childrens-book.js) and [typescript version](./examples/typescript/childrens-book.ts)
-- [using cross validation with a feed forward net](./examples/javascript/cross-validate.js) and [typescript version](./examples/typescript/cross-validate.ts)
-- experimental (NeuralNetwork only, but more to come!) [using the gpu in a browser](./examples/javascript/gpu.html) or [using node gpu fallback to cpu](./examples/gpu-fallback.js) and [typescript version](./examples/typescript/gpu-fallback.ts)
-- [learning math using a recurrent neural network](./examples/javascript/learn-math.js) and [typescript version](./examples/typescript/learn-math.ts)
-- [predict next number, and forecast numbers](./examples/javascript/predict-numbers.js) and [typescript version](./examples/typescript/predict-numbers.ts)
-- [using node streams](./examples/javascript/stream-example.js) and [typescript version](./examples/typescript/stream-example.ts)
-- [simple letter detection](./examples/javascript/which-letter-simple.js) and [typescript version](./examples/typescript/which-letter-simple.ts)
-- [Cryotherapy Success Rate Prediction](https://cryotherapy.surge.sh)
-- [Rock Paper Scissors](https://github.com/arifikhsan/batu-gunting-kertas-nuxt)
+You can check out this fantastic screencast, which explains how to train a simple neural network using a real-world dataset: [How to create a neural network in the browser using Brain.js](https://scrimba.com/c/c36zkcb).
 
 ## Training
 
@@ -328,6 +318,54 @@ net.train([
 const output = net.run('I feel great about the world!'); // 'happy'
 ```
 
+#### For training with `AE`
+
+Each training pattern can either:
+
+- Be an array of numbers
+- Be an array of arrays of numbers
+
+Training an autoencoder to compress the values of a XOR calculation:
+
+```javascript
+const net = new brain.AE(
+  {
+    hiddenLayers: [ 5, 2, 5 ]
+  }
+);
+
+net.train([
+  [ 0, 0, 0 ],
+  [ 0, 1, 1 ],
+  [ 1, 0, 1 ],
+  [ 1, 1, 0 ]
+]);
+```
+
+Encoding/decoding:
+
+```javascript
+const input = [ 0, 1, 1 ];
+
+const encoded = net.encode(input);
+const decoded = net.decode(encoded);
+```
+
+Denoise noisy data:
+
+```javascript
+const noisyData = [ 0, 1, 0 ];
+
+const data = net.denoise(noisyData);
+```
+
+Test for anomalies in data samples:
+
+```javascript
+const shouldBeFalse = net.includesAnomalies([0, 1, 1]);
+const shouldBeTrue = net.includesAnomalies([0, 1, 0]);
+```
+
 ### Training Options
 
 `train()` takes a hash of options as its second argument:
@@ -343,13 +381,13 @@ net.train(data, {
   momentum: 0.1, // scales with next layer's change value --> number between 0 and 1
   callback: null, // a periodic call back that can be triggered while training --> null or function
   callbackPeriod: 10, // the number of iterations through the training data between callback calls --> number greater than 0
-  timeout: Infinity, // the max number of milliseconds to train for --> number greater than 0
+  timeout: number, // the max number of milliseconds to train for --> number greater than 0. Default --> Infinity
 });
 ```
 
 The network will stop training whenever one of the two criteria is met: the training error has gone below the threshold (default `0.005`), or the max number of iterations (default `20000`) has been reached.
 
-By default training will not let you know how it's doing until the end, but set `log` to `true` to get periodic updates on the current training error of the network. The training error should decrease every time. The updates will be printed to console. If you set `log` to a function, this function will be called with the updates instead of printing to the console.
+By default, training will not let you know how it's doing until the end, but set `log` to `true` to get periodic updates on the current training error of the network. The training error should decrease every time. The updates will be printed to the console. If you set `log` to a function, this function will be called with the updates instead of printing to the console.
 However, if you want to use the values of the updates in your own output, the `callback` can be set to a function to do so instead.
 
 The learning rate is a parameter that influences how quickly the network trains. It's a number from `0` to `1`. If the learning rate is close to `0`, it will take longer to train. If the learning rate is closer to `1`, it will train faster, but training results may be constrained to a local minimum and perform badly on new data.(_Overfitting_) The default learning rate is `0.3`.
@@ -362,7 +400,13 @@ A boolean property called `invalidTrainOptsShouldThrow` is set to `true` by defa
 
 ### Async Training
 
-`trainAsync()` takes the same arguments as train (data and options). Instead of returning the results object from training, it returns a promise that when resolved will return the training results object.
+`trainAsync()` takes the same arguments as train (data and options). Instead of returning the results object from training, it returns a promise that when resolved will return the training results object.  Does NOT work with:
+* `brain.recurrent.RNN`
+* `brain.recurrent.GRU`
+* `brain.recurrent.LSTM`
+* `brain.recurrent.RNNTimeStep`
+* `brain.recurrent.GRUTimeStep`
+* `brain.recurrent.LSTMTimeStep`
 
 ```javascript
 const net = new brain.NeuralNetwork();
@@ -417,37 +461,7 @@ Use `CrossValidate` with these classes:
 - `brain.LSTMTimeStep`
 - `brain.GRUTimeStep`
 
-An example of using cross validate can be found in [examples/javascript/cross-validate.js](examples/javascript/cross-validate.js)
-
-### Train Stream
-
-Streams are a very powerful tool in node for massive data spread across processes and are provided via the brain.js api in the following way:
-
-```js
-const net = new brain.NeuralNetwork();
-const trainStream = new brain.TrainStream({
-  neuralNetwork: net,
-  floodCallback: function () {
-    flood(trainStream, data);
-  },
-  doneTrainingCallback: function (stats) {
-    // network is done training!  What next?
-  },
-});
-
-// kick it off
-readInputs(trainStream, data);
-
-function readInputs(stream, data) {
-  for (let i = 0; i < data.length; i++) {
-    stream.write(data[i]);
-  }
-  // let it know we've reached the end of the inputs
-  stream.endInputs();
-}
-```
-
-An example of using train stream can be found in [examples/javascript/stream-example.js](examples/javascript/stream-example.js)
+An example of using cross validate can be found in [cross-validate.ts](https://github.com/BrainJS/brain.js-examples/blob/main/src/cross-validate.ts)
 
 ## Methods
 
@@ -593,29 +607,7 @@ By default `brain.js` uses one hidden layer with size proportionate to the size 
 
 ## Streams
 
-The network now has a [WriteStream](http://nodejs.org/api/stream.html#stream_class_stream_writable). You can train the network by using `pipe()` to send the training data to the network.
-
-### Example
-
-Refer to [`stream-example.js`](examples/javascript/stream-example.js) for an example on how to train the network with a stream.
-
-### Initialization
-
-To train the network using a stream you must first create the stream by calling `net.createTrainStream()` which takes the following options:
-
-- `floodCallback()` - the callback function to re-populate the stream. This gets called on every training iteration.
-- `doneTrainingCallback(info)` - the callback function to execute when the network is done training. The `info` param will contain a hash of information about how the training went:
-
-```javascript
-{
-  error: 0.0039139985510105032,  // training error
-  iterations: 406                // training iterations
-}
-```
-
-### Transform
-
-Use a [Transform](http://nodejs.org/api/stream.html#stream_class_stream_transform) to coerce the data into the correct format. You might also use a Transform stream to normalize your data on the fly.
+Use https://www.npmjs.com/package/train-stream to stream data to a NeuralNetwork
 
 ## Utilities
 
@@ -626,7 +618,7 @@ const likely = require('brain/likely');
 const key = likely(input, net);
 ```
 
-Likely example see: [simple letter detection](./examples/javascript/which-letter-simple.js)
+Likely example see: [simple letter detection](https://github.com/BrainJS/brain.js-examples/blob/main/src/which-letter-simple.ts)
 
 ### `toSVG`
 
@@ -643,7 +635,7 @@ document.getElementById('result').innerHTML = brain.utilities.toSVG(
 );
 ```
 
-toSVG example see: [network rendering](./examples/javascript/rendering-svg.html)
+toSVG example see: [network rendering](https://github.com/BrainJS/brain.js-examples/blob/main/src/rendering-svg/index.html)
 
 The user interface used:
 ![screenshot1](https://user-images.githubusercontent.com/43925925/48969024-e526ed80-f000-11e8-85bd-e10967cfaee2.png)
@@ -652,12 +644,15 @@ The user interface used:
 
 - [`brain.NeuralNetwork`](src/neural-network.ts) - [Feedforward Neural Network](https://en.wikipedia.org/wiki/Feedforward_neural_network) with backpropagation
 - [`brain.NeuralNetworkGPU`](src/neural-network-gpu.ts) - [Feedforward Neural Network](https://en.wikipedia.org/wiki/Feedforward_neural_network) with backpropagation, GPU version
+- [`brain.AE`](src/autoencoder.ts) - [Autoencoder or "AE"](https://en.wikipedia.org/wiki/Autoencoder) with backpropogation and GPU support
 - [`brain.recurrent.RNNTimeStep`](src/recurrent/rnn-time-step.ts) - [Time Step Recurrent Neural Network or "RNN"](https://en.wikipedia.org/wiki/Recurrent_neural_network)
 - [`brain.recurrent.LSTMTimeStep`](src/recurrent/lstm-time-step.ts) - [Time Step Long Short Term Memory Neural Network or "LSTM"](https://en.wikipedia.org/wiki/Long_short-term_memory)
 - [`brain.recurrent.GRUTimeStep`](src/recurrent/gru-time-step.ts) - [Time Step Gated Recurrent Unit or "GRU"](https://en.wikipedia.org/wiki/Gated_recurrent_unit)
 - [`brain.recurrent.RNN`](src/recurrent/rnn.ts) - [Recurrent Neural Network or "RNN"](https://en.wikipedia.org/wiki/Recurrent_neural_network)
 - [`brain.recurrent.LSTM`](src/recurrent/lstm.ts) - [Long Short Term Memory Neural Network or "LSTM"](https://en.wikipedia.org/wiki/Long_short-term_memory)
 - [`brain.recurrent.GRU`](src/recurrent/gru.ts) - [Gated Recurrent Unit or "GRU"](https://en.wikipedia.org/wiki/Gated_recurrent_unit)
+- [`brain.FeedForward`](src/feed-forward.ts) - [Highly Customizable Feedforward Neural Network](https://en.wikipedia.org/wiki/Feedforward_neural_network) with backpropagation
+- [`brain.Recurrent`](src/recurrent.ts) - [Highly Customizable Recurrent Neural Network](https://en.wikipedia.org/wiki/Recurrent_neural_network) with backpropagation
 
 ### Why different Neural Network Types
 
@@ -675,9 +670,9 @@ If you are a developer or if you just care about how ML API should look like - p
 
 Brain.js is a widely adopted open source machine learning library in the javascript world. There are several reasons for it, but most notable is **simplicity of usage while not sacrificing performance**.
 We would like to keep it also simple to learn, simple to use and performant when it comes to W3C standard. We think that current brain.js API is quite close to what we could expect to become a standard.
-And since supporting doesn't require much effort and still can make a hudge difference feel free to join W3C community group and support us with brain.js like API.
+And since supporting doesn't require much effort and still can make a huge difference feel free to join W3C community group and support us with brain.js like API.
 
-Get involved into W3C machine learning ongoing standardization proces [here](https://www.w3.org/community/webmachinelearning/).
+Get involved into W3C machine learning ongoing standardization process [here](https://www.w3.org/community/webmachinelearning/).
 You can also join our open discussion about standardization [here](https://github.com/BrainJS/brain.js/issues/337).
 
 ## Issues

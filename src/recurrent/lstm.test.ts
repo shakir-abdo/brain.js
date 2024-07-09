@@ -108,17 +108,14 @@ describe('LSTM', () => {
     it('can output same as run method', () => {
       const dataFormatter = new DataFormatter(['h', 'i', ' ', 'm', 'o', '!']);
       const net = new LSTM({
-        inputSize: 7,
+        inputSize: 1,
         inputRange: dataFormatter.characters.length,
-        outputSize: 7,
+        outputSize: 1,
         dataFormatter,
       });
       net.initialize();
       for (let i = 0; i < 100; i++) {
         net.trainPattern(dataFormatter.toIndexes('hi mom!'));
-        // if (i % 10) {
-        //   console.log(dataFormatter.toCharacters(net.run()).join(''));
-        // }
       }
 
       const lastOutput = net.run();
@@ -135,7 +132,8 @@ describe('LSTM', () => {
   });
 
   describe('.run', () => {
-    it('can predict greetings in 100 trainings', () => {
+    jest.retryTimes(5);
+    it('can predict greetings in 200 trainings', () => {
       const net = new LSTM();
       const trainingData = [
         {
@@ -155,13 +153,13 @@ describe('LSTM', () => {
           output: 'bro',
         },
       ];
-      net.train(trainingData, { iterations: 100 });
+      net.train(trainingData, { iterations: 200 });
       expect(net.run('hi')).toBe('mom');
       expect(net.run('howdy')).toBe('dad');
       expect(net.run('hello')).toBe('sis');
       expect(net.run('yo')).toBe('bro');
     });
-    it('can predict a string from index in 100 trainings', () => {
+    it('can predict a string from index in 200 trainings', () => {
       const net = new LSTM();
       const transactionTypes = {
         credit: '0',

@@ -221,6 +221,8 @@ export class FullyConnected extends Filter {
       this.compareFilterDeltasKernel = makeKernel(compareFilterDeltas3D, {
         output: [connectionCount, this.height],
         constants: {
+          deltaX: 0,
+          deltaY: 0,
           inputWidth: inputLayer.width,
           inputHeight: inputLayer.height,
         },
@@ -246,7 +248,10 @@ export class FullyConnected extends Filter {
       this.compareFilterDeltasKernel = makeKernel(compareFilterDeltas, {
         output: [connectionCount, this.height],
         constants: {
+          deltaX: 0,
+          deltaY: 0,
           inputWidth: inputLayer.width,
+          inputHeight: inputLayer.height,
         },
       });
 

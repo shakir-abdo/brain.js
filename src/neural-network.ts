@@ -17,7 +17,7 @@ type NeuralNetworkFormatter =
   | ((v: INumberHash) => Float32Array)
   | ((v: number[]) => Float32Array);
 
-function getTypedArrayFn(
+export function getTypedArrayFn(
   value: INeuralNetworkData,
   table: INumberHash | null
 ): null | NeuralNetworkFormatter {
@@ -33,6 +33,7 @@ function getTypedArrayFn(
     const array = new Float32Array(length);
     for (const p in table) {
       if (!table.hasOwnProperty(p)) continue;
+      if (typeof v[p] !== 'number') continue;
       array[table[p]] = v[p] || 0;
     }
     return array;
@@ -294,9 +295,7 @@ export class NeuralNetwork<
     } else {
       formattedInput = (input as unknown) as Float32Array;
     }
-    if (formattedInput.length !== this.sizes[0]) {
-      throw new Error(`input is not in correct length of ${this.sizes[0]}`);
-    }
+    this.validateInput(formattedInput);
     const output = this.runInput(formattedInput).slice(0);
     if (this.outputLookup) {
       return (lookup.toObject(
@@ -423,7 +422,7 @@ export class NeuralNetwork<
   verifyIsInitialized(
     preparedData: Array<INeuralNetworkDatumFormatted<Float32Array>>
   ): void {
-    if (this.sizes.length) return;
+    if (this.sizes.length && this.outputLayer > 0) return;
 
     this.sizes = [];
     this.sizes.push(preparedData[0].input.length);
@@ -655,7 +654,7 @@ export class NeuralNetwork<
     };
 
     this.verifyIsInitialized(preparedData);
-
+    this.validateData(preparedData);
     return {
       preparedData,
       status,
@@ -941,6 +940,34 @@ export class NeuralNetwork<
           (learningRate * biasMomentumCorrection) /
           (Math.sqrt(biasGradientCorrection) + epsilon);
       }
+    }
+  }
+
+  validateData(data: Array<INeuralNetworkDatumFormatted<Float32Array>>): void {
+    const inputSize = this.sizes[0];
+    const outputSize = this.sizes[this.sizes.length - 1];
+    const { length } = data;
+    for (let i = 0; i < length; i++) {
+      const { input, output } = data[i];
+      if (input.length !== inputSize) {
+        throw new Error(
+          `input at index ${i} length ${input.length} must be ${inputSize}`
+        );
+      }
+      if (data[i].output.length !== outputSize) {
+        throw new Error(
+          `output at index ${i} length ${output.length} must be ${outputSize}`
+        );
+      }
+    }
+  }
+
+  validateInput(formattedInput: Float32Array): void {
+    const inputSize = this.sizes[0];
+    if (formattedInput.length !== inputSize) {
+      throw new Error(
+        `input length ${formattedInput.length} must match options.inputSize of ${inputSize}`
+      );
     }
   }
 

@@ -2,22 +2,28 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import { terser } from 'rollup-plugin-terser';
+import { fileURLToPath } from 'node:url';
 
 const name = 'brain';
-const extensions = ['.mjs', '.js', '.json', '.node', '.ts'];
+const extensions = ['.js', '.json', '.node', '.ts'];
+const file = 'dist/browser.js';
 
 export default {
-  input: './src/browser-index.ts',
+  input: './src/index.ts',
 
   // Specify here external modules which you don't want to include in your bundle (for instance: 'lodash', 'moment' etc.)
   // https://rollupjs.org/guide/en#external-e-external
-  external: ['gpu.js'],
+  external: [
+    // brain js already uses gpu.js as peer dependencies so it shouldn't be like this
+    fileURLToPath(
+      new URL('./node_modules/gpu.js/src/index.js', import.meta.url)
+    ),
+  ],
 
   plugins: [
     // Allows node_modules resolution
     resolve({
-      preferBuiltins: true,
+      preferBuiltins: false,
       browser: true,
       extensions,
     }),
@@ -31,28 +37,15 @@ export default {
     // Compile TypeScript/JavaScript files
     typescript(),
   ],
-
   output: [
     {
-      file: 'dist/brain-browser.mjs',
-      format: 'es',
-      sourcemap: true,
-    },
-    {
-      file: 'dist/brain-browser.js',
+      file,
       format: 'umd',
-      name,
       sourcemap: true,
-    },
-    {
-      file: 'dist/brain-browser.min.js',
-      format: 'umd',
+      globals: {
+        'gpu.js': `GPU`,
+      },
       name,
-      sourcemap: true,
-      plugins: [
-        // Minify bundles
-        terser(),
-      ],
     },
   ],
 };

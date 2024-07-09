@@ -9,6 +9,7 @@ import { flattenLayers } from './utilities/flatten-layers';
 import { makeKernel, release } from './utilities/kernel';
 import { layerFromJSON } from './utilities/layer-from-json';
 import { LookupTable } from './utilities/lookup-table';
+import { Thaw } from 'thaw.js';
 
 export interface IFeedForwardTrainingData<
   InputType extends InputOutputValue | KernelOutput = number[] | Float32Array,
@@ -343,16 +344,48 @@ export class FeedForward<
     let continueTicking = true;
     const calculateError = (): number =>
       this._calculateTrainingError(preparedData);
-    const trainPatters = (): void => this._trainPatterns(preparedData);
+    const trainPatterns = (): void => this._trainPatterns(preparedData);
     while (continueTicking) {
       continueTicking = this._trainingTick(
         status,
         endTime,
         calculateError,
-        trainPatters
+        trainPatterns
       );
     }
     return status;
+  }
+
+  async trainAsync(
+    data: Array<IFeedForwardTrainingData<InputType, OutputType>>,
+    options: Partial<IFeedForwardTrainingOptions> = {}
+  ): Promise<ITrainingStatus> {
+    const { preparedData, status, endTime } = this._prepTraining(data, options);
+
+    return await new Promise((resolve, reject) => {
+      try {
+        const calculateError = (): number =>
+          this._calculateTrainingError(preparedData);
+        const trainPatterns = (): void => this._trainPatterns(preparedData);
+        const thawedTrain: Thaw = new Thaw(
+          new Array(this.trainOpts.iterations),
+          {
+            delay: true,
+            each: () =>
+              this._trainingTick(
+                status,
+                endTime,
+                calculateError,
+                trainPatterns
+              ) || thawedTrain.stop(),
+            done: () => resolve(status),
+          }
+        );
+        thawedTrain.tick();
+      } catch (trainError) {
+        reject(trainError);
+      }
+    });
   }
 
   _trainingTick(
@@ -757,17 +790,6 @@ export class FeedForward<
   toFunction(): void {
     throw new Error(
       `${this.constructor.name}-toFunction is not yet implemented`
-    );
-  }
-
-  /**
-   * This will create a TrainStream (WriteStream) for us to send the training data to.
-   * @param opts training options
-   * @returns {TrainStream|*}
-   */
-  createTrainStream(): void {
-    throw new Error(
-      `${this.constructor.name}-createTrainStream is not yet implemented`
     );
   }
 }

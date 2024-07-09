@@ -13,6 +13,7 @@ import { ITrainingStatus } from './feed-forward';
 import { INumberHash, lookup } from './lookup';
 import {
   IJSONLayer,
+  INeuralNetworkData,
   INeuralNetworkDatum,
   INeuralNetworkJSON,
   INeuralNetworkOptions,
@@ -189,10 +190,10 @@ export type BackPropagateLayer = (
   deltas: KernelOutput
 ) => { result: KernelOutput; error: KernelOutput };
 
-export class NeuralNetworkGPU<InputType, OutputType> extends NeuralNetwork<
-  InputType,
-  OutputType
-> {
+export class NeuralNetworkGPU<
+  InputType extends INeuralNetworkData,
+  OutputType extends INeuralNetworkData
+> extends NeuralNetwork<InputType, OutputType> {
   gpu: GPU;
 
   texturizeInputData: (value: KernelOutput) => KernelOutput = () => {
@@ -624,6 +625,7 @@ export class NeuralNetworkGPU<InputType, OutputType> extends NeuralNetwork<
     } else {
       formattedInput = (input as unknown) as Float32Array;
     }
+    this.validateInput(formattedInput);
     const outputTextures = this.runInput(formattedInput);
     const output =
       outputTextures instanceof Texture

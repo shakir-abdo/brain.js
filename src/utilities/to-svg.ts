@@ -2,7 +2,11 @@ import { FeedForward, IFeedForwardJSON } from '../feed-forward';
 import { recurrentZeros } from '../layer/recurrent-zeros';
 import { Recurrent } from '../recurrent';
 import { IRNNJSON, RNN } from '../recurrent/rnn';
-import { INeuralNetworkJSON, NeuralNetwork } from '../neural-network';
+import {
+  INeuralNetworkData,
+  INeuralNetworkJSON,
+  NeuralNetwork,
+} from '../neural-network';
 import { GRU } from '../recurrent/gru';
 import { LSTM } from '../recurrent/lstm';
 import { NeuralNetworkGPU } from '../neural-network-gpu';
@@ -352,7 +356,10 @@ export function getNeuralNetworkJSONSizes(json: INeuralNetworkJSON): number[] {
   return json.sizes;
 }
 
-export function getNeuralNetworkSizes<InputType, OutputType>(
+export function getNeuralNetworkSizes<
+  InputType extends INeuralNetworkData,
+  OutputType extends INeuralNetworkData
+>(
   net:
     | NeuralNetwork<InputType, OutputType>
     | NeuralNetworkGPU<InputType, OutputType>
@@ -446,8 +453,8 @@ export function toSVG<
     | NeuralNetwork<InputType, OutputType>
     | INeuralNetworkJSON
     | NeuralNetworkGPU<InputType, OutputType>,
-  InputType,
-  OutputType
+  InputType extends INeuralNetworkData,
+  OutputType extends INeuralNetworkData
 >(
   net: T,
   options?:
